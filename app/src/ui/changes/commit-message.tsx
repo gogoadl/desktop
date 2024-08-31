@@ -31,7 +31,11 @@ import {
 } from './commit-message-avatar'
 import { getDotComAPIEndpoint } from '../../lib/api'
 import { isAttributableEmailFor, lookupPreferredEmail } from '../../lib/email'
-import { setGlobalConfigValue } from '../../lib/git/config'
+import {
+  getConfigValue,
+  getGlobalConfigValue,
+  setGlobalConfigValue,
+} from '../../lib/git/config'
 import { Popup, PopupType } from '../../models/popup'
 import { RepositorySettingsTab } from '../repository-settings/repository-settings'
 import { IdealSummaryLength } from '../../lib/wrap-rich-text-commit-message'
@@ -263,6 +267,17 @@ export class CommitMessage extends React.Component<
     await this.updateRepoRuleFailures(undefined, undefined, true)
   }
 
+  public async componentWillMount() {
+    console.log('componentWillMount')
+    const globalCommitTemplate = await getGlobalConfigValue('commit.template')
+    const commitTemplate = await getConfigValue(
+      this.props.repository,
+      'commit.template'
+    )
+    console.log(globalCommitTemplate)
+    console.log(commitTemplate)
+  }
+
   /**
    * Special case for the summary/description being reset (empty) after a commit
    * and the commit state changing thereafter, needing a sync with incoming props.
@@ -274,7 +289,6 @@ export class CommitMessage extends React.Component<
    */
   public componentWillReceiveProps(nextProps: ICommitMessageProps) {
     const { commitMessage } = nextProps
-
     if (!commitMessage || commitMessage === this.props.commitMessage) {
       return
     }
